@@ -36,10 +36,18 @@ class ServiceGoods:
             goods.count = goods.count - (1 if goods.count > 0 else 0)
 
     @classmethod
+    @enter_flask_sqlalchemy
     def dec_count_by_user(cls, user):
-        flask_app.app_context().push()
         goods_all = Goods.query.filter_by(_owner_id=user.id).limit(20).all()
         for goods in goods_all:
             goods.count = goods.count - (1 if goods.count > 0 else 0)
 
-        flask_db.session.commit()
+    @classmethod
+    @enter_flask_sqlalchemy_no_commit
+    def count(cls, user_id: int = None) -> int:
+        if user_id is None:
+            return Goods.query.count()
+        return Goods.query.filter_by(_owner_id=user_id).count()
+
+def dec_count_by_user_with_mp(user):
+    ServiceGoods.dec_count_by_user(user)

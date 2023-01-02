@@ -1,5 +1,6 @@
 import argparse
 
+from app.operate.op_cnt import count_data
 from app.operate.op_del import delete_data
 from app.operate.op_gen import generate_data
 from app.operate.op_test import test_data, test_subcmd
@@ -19,16 +20,16 @@ def pass_str_arg(argument: str):
     return argument
 
 
-commands = {"gen": [generate_data, ], "del": [delete_data, ], "test": [test_data, test_subcmd]}
+commands = {"gen": [generate_data, ], "del": [delete_data, ], "test": [test_data, test_subcmd], "cnt": [count_data, ]}
 
 
 def get_argument():
     parser = argparse.ArgumentParser(
-        prog='multiprocess_test',
+        prog='python main',
         description='multiprocess_test')
-    parser.add_argument('-c', '--cmd', action="store", dest="cmd", default="gen", type=str)
-    parser.add_argument('-s', '--subcmd', action="store", dest="subcmd", default="None", type=str)
-    parser.add_argument('-a', '--argument', action="store", dest="argument", default="None", type=str)
+    parser.add_argument('-c', '--cmd', action="store", dest="cmd", default="gen", help="gen/test/del/cnt", type=str)
+    parser.add_argument('-s', '--subcmd', action="store", dest="subcmd", default="None", help="test=[simple/data]", type=str)
+    parser.add_argument('-a', '--argument', action="store", dest="argument", default="None", help="data count to generate.", type=str)
     return parser.parse_args()
 
 

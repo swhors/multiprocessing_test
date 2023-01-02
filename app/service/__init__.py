@@ -41,6 +41,7 @@ def enter_flask_sqlalchemy(func):
         _flask_app.app_context().push()
         ret_val = func(*args, **kwargs)
         _flask_db.session.commit()
+        _flask_db.session.close()
         return ret_val
     return inner
 
@@ -49,5 +50,6 @@ def enter_flask_sqlalchemy_no_commit(func):
     def inner(*args, **kwargs):
         _flask_app.app_context().push()
         ret_val = func(*args, **kwargs)
+        _flask_db.session.close()
         return ret_val
     return inner

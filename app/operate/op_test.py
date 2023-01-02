@@ -36,11 +36,11 @@ def test_1_multi():
     mp.set_start_method("fork")
     start_ts: time.time = time.time()
     from app.service.user import ServiceUser
-    from app.service.goods import ServiceGoods
     users = ServiceUser.get_all()
 
     with mp.Pool(current_config.pool.size) as p:
-        p.map(ServiceGoods.dec_count_by_user, users)
+        from app.service.goods import dec_count_by_user_with_mp
+        p.map(dec_count_by_user_with_mp, users)
     end_ts: time.time = time.time()
     print(f"multi op wrapped = {end_ts - start_ts}")
 

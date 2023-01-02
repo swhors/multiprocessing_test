@@ -5,7 +5,6 @@ def generate_data(*args):
     from app.service.user import ServiceUser
     from app.service.goods import ServiceGoods
 
-    print(f'{args[0]}, {args[1]}')
     try:
         data_cnt = int(args[1])
     except ValueError:
