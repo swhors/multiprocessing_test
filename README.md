@@ -12,5 +12,6 @@ optional arguments:
   -s SUBCMD, --subcmd SUBCMD
                         test=[simple/data]
   -a ARGUMENT, --argument ARGUMENT
-                        data count to generate.
+                        data count to generate 
+                     or user_name prefix to acquire count of data
 ```
