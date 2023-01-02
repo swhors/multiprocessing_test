@@ -2,27 +2,39 @@ import multiprocessing as mp
 import time
 # import os
 from app.config import current_config
+from itertools import product
 
 
-def f(num):
+class ExtInfo:
+    ext_num: int
+
+    def __init__(self):
+        self.ext_num = 10
+
+
+def f(num, ext_info):
     # print(f'{os.getpid()}/{os.getppid()}')
     time.sleep(1)
-    return num * num
+    result = num * num * ext_info.ext_num
+    print(f'{num} * {num} * {ext_info.ext_num} = {result}')
+    return result
 
 
 def test_multi():
+    ext_info = [ExtInfo(),]
     start_ts: time.time = time.time()
     with mp.Pool(current_config.pool.size) as p:
-        p.map(f, range(1, 300, 1))
+        p.starmap(f, product(range(1, 31, 1), ext_info))
     end_ts: time.time = time.time()
 
     print(f"multi op wrapped = {end_ts - start_ts}")
 
 
 def test_single():
+    ext_info = ExtInfo()
     start_ts: time.time = time.time()
-    for num in range(1, 300, 1):
-        f(num)
+    for num in range(1, 31, 1):
+        f(num, ext_info)
     end_ts: time.time = time.time()
     print(f"sequential op wrapped = {end_ts - start_ts}")
 
