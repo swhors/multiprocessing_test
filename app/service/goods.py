@@ -49,5 +49,6 @@ class ServiceGoods:
             return Goods.query.count()
         return Goods.query.filter_by(_owner_id=user_id).count()
 
+
 def dec_count_by_user_with_mp(user):
     ServiceGoods.dec_count_by_user(user)

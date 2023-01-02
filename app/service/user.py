@@ -40,8 +40,7 @@ class ServiceUser:
 
     @classmethod
     @enter_flask_sqlalchemy_no_commit
-    def get_id(cls, name: str = None) -> int:
+    def get_id(cls, name: str = None) -> list:
         if name is None or len(name) == 0:
-            return [id for id, in (flask_db.session.query(User._id).all())]
-            # return User.query("id").all()
-        return [id for id, in (flask_db.session.query(User._id).filter(User._name.like('%' + name + '%')).all())]
+            return [a for a, in (flask_db.session.query(User._id).all())]
+        return [a for a, in (flask_db.session.query(User._id).filter(User._name.like('%' + name + '%')).all())]
