@@ -44,10 +44,15 @@ class MysqlConfig:
 class PoolConfig:
     def __init__(self):
         self._size = 5
+        self._is_async = True
 
     @property
     def size(self):
         return self._size
+
+    @property
+    def is_async(self):
+        return self._is_async
 
 
 class Config:

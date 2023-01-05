@@ -27,9 +27,12 @@ def get_argument():
     parser = argparse.ArgumentParser(
         prog='python main',
         description='multiprocess_test')
-    parser.add_argument('-c', '--cmd', action="store", dest="cmd", default="gen", help="gen/test/del/cnt", type=str)
-    parser.add_argument('-s', '--subcmd', action="store", dest="subcmd", default="None", help="test=[simple/data]", type=str)
-    parser.add_argument('-a', '--argument', action="store", dest="argument", default="None", help="data count to generate.", type=str)
+    parser.add_argument('-c', '--cmd', action="store", dest="cmd", default="gen",
+                        help="gen/test/del/cnt", type=str)
+    parser.add_argument('-s', '--subcmd', action="store", dest="subcmd", default="None",
+                        help="test=[simple/data]", type=str)
+    parser.add_argument('-a', '--argument', action="store", dest="argument", default="None",
+                        help="\n\t- gen : data count to generate\n\t- cnt : user name to find", type=str)
     return parser.parse_args()
 
 

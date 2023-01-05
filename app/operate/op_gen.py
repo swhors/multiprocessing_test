@@ -19,7 +19,6 @@ def generate_data(*args):
     users = ServiceUser.get_all()
 
     for user in users:
-        print(f'{user}')
         if user is not None:
             rnd_num = int(random.random() * 100) % 10
             for i1 in range(1, (rnd_num % 3) + 2):

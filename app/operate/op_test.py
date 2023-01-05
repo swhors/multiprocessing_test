@@ -1,8 +1,19 @@
 import multiprocessing as mp
+import multiprocessing.dummy as th
 import time
-# import os
 from app.config import current_config
 from itertools import product
+
+
+def wrapped_timer(func):
+    def inner(*args):
+        start_ts: time.time = time.time()
+        result = func(*args)
+        end_ts: time.time = time.time()
+        print(f"{func.__name__} elapsed = {end_ts - start_ts}")
+        return result
+
+    return inner
 
 
 class ExtInfo:
@@ -12,31 +23,32 @@ class ExtInfo:
         self.ext_num = 10
 
 
-def f(num, ext_info):
-    # print(f'{os.getpid()}/{os.getppid()}')
-    time.sleep(1)
+def f(ext_info, num):
+    # time.sleep(1)
     result = num * num * ext_info.ext_num
-    print(f'{num} * {num} * {ext_info.ext_num} = {result}')
+    # print(f'{num} * {num} * {ext_info.ext_num} = {result}')
     return result
 
 
-def test_multi():
-    ext_info = [ExtInfo(),]
-    start_ts: time.time = time.time()
+@wrapped_timer
+def test_multi_process():
+    ext_info = [ExtInfo(), ]
     with mp.Pool(current_config.pool.size) as p:
-        p.starmap(f, product(range(1, 31, 1), ext_info))
-    end_ts: time.time = time.time()
-
-    print(f"multi op wrapped = {end_ts - start_ts}")
+        p.starmap(f, product(ext_info, range(1, 31, 1)))
 
 
+@wrapped_timer
+def test_multi_thread():
+    ext_info = [ExtInfo(), ]
+    with th.Pool(current_config.pool.size) as p:
+        p.starmap(f, product(ext_info, range(1, 31, 1)))
+
+
+@wrapped_timer
 def test_single():
     ext_info = ExtInfo()
-    start_ts: time.time = time.time()
     for num in range(1, 31, 1):
-        f(num, ext_info)
-    end_ts: time.time = time.time()
-    print(f"sequential op wrapped = {end_ts - start_ts}")
+        f(ext_info, num)
 
 
 def update_count(user):
@@ -44,31 +56,48 @@ def update_count(user):
     ServiceGoods.dec_count_by_ownerid(user.id)
 
 
-def test_1_multi():
+@wrapped_timer
+def test_1_multi_process():
     mp.set_start_method("fork")
-    start_ts: time.time = time.time()
     from app.service.user import ServiceUser
     users = ServiceUser.get_all()
 
-    with mp.Pool(current_config.pool.size) as p:
+    with mp.Pool(processes=current_config.pool.size) as p:
         from app.service.goods import dec_count_by_user_with_mp
-        p.map(dec_count_by_user_with_mp, users)
-    end_ts: time.time = time.time()
-    print(f"multi op wrapped = {end_ts - start_ts}")
+        if current_config.pool.is_async:
+            results = p.map_async(dec_count_by_user_with_mp, users)
+            results.wait()
+        else:
+            p.map(dec_count_by_user_with_mp, users)
+        p.terminate()
 
 
+@wrapped_timer
+def test_1_multi_thread():
+    from app.service.user import ServiceUser
+    users = ServiceUser.get_all()
+
+    with th.Pool(current_config.pool.size) as p:
+        from app.service.goods import dec_count_by_user_with_mp
+        if current_config.pool.is_async:
+            results = p.map_async(dec_count_by_user_with_mp, users)
+            results.wait()
+
+        else:
+            p.map(dec_count_by_user_with_mp, users)
+        p.terminate()
+
+
+@wrapped_timer
 def test_1_single():
-    start_ts: time.time = time.time()
     from app.service.user import ServiceUser
     from app.service.goods import ServiceGoods
     users = ServiceUser.get_all()
     for user in users:
         ServiceGoods.dec_count_by_user(user)
-    end_ts: time.time = time.time()
-    print(f"sequential op wrapped = {end_ts - start_ts}")
 
 
-test_subcmd = {"simple": [test_multi, test_single], "data": [test_1_multi, test_1_single]}
+test_subcmd = {"simple": [test_multi_process, test_1_multi_thread, test_single], "data": [test_1_multi_process, test_1_multi_thread, test_1_single]}
 
 
 def test_data(*args):
